@@ -68,6 +68,7 @@ class Product:
         pm.set_screenshot_size(screenshot_file.stat().st_size)
         pm.set_screenshot_name(PurePath(p_dict[defs.KEY_REVIEW_SCREENSHOT]).name)
         pm.set_review_notes(p_dict[defs.KEY_REVIEW_NOTES])
+        pm.set_cleared_for_sale(p_dict[defs.KEY_CLEARED_FOR_SALE])
         return ret
 
     def __init__(self, p_elem, namespace = XML_NAMESPACE):
@@ -135,6 +136,13 @@ class Product:
         )[0]
         node.text = str(value)
 
+    def reference_name(self):
+        node = self.elem.xpath(
+            'x:reference_name',
+            namespaces = self.namespaces
+        )[0]
+        return node.text
+
     def set_reference_name(self, value):
         node = self.elem.xpath(
             'x:reference_name',
@@ -187,6 +195,20 @@ class Product:
             namespaces = self.namespaces
         )[0]
         node.text = str(value)
+
+    def cleared_for_sale(self):
+        text = self.elem.xpath(
+            'x:products/x:product/x:cleared_for_sale',
+            namespaces = self.namespaces
+        )[0].text
+        return str(text) == 'true'
+
+    def set_cleared_for_sale(self, value):
+        node = self.elem.xpath(
+            'x:products/x:product/x:cleared_for_sale',
+            namespaces = self.namespaces
+        )[0]
+        node.text = 'true' if value else 'false'
 
     def __str__(self):
         return str(etree.tostring(self.elem, encoding = 'utf-8'), 'utf-8')

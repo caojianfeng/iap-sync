@@ -59,6 +59,14 @@ def is_product_changed(product_elem, product_dict):
         desc_next = product_dict[lc][defs.KEY_DESCRIPTION]
         if desc_next != desc_now:
             return True
+
+    cleared_for_sale_now = pm.cleared_for_sale()
+    cleared_for_sale_next = product_dict[defs.KEY_CLEARED_FOR_SALE]
+    if cleared_for_sale_next and not cleared_for_sale_now:
+        return True
+    if cleared_for_sale_now and not cleared_for_sale_next:
+        return True
+
     return False
 
 
@@ -70,6 +78,9 @@ def update_product(elem, p):
     locales = p['locales']
     print('update: now: %s, next: %s' % (pm, Product(Product.create_node(p))))
     pm.set_price_tier(p[defs.KEY_WHOLESALE_PRICE_TIER])
+    pm.set_cleared_for_sale(p[defs.KEY_CLEARED_FOR_SALE])
+    pm.set_reference_name(p[defs.KEY_REFERENCE_NAME])
+    pm.set_review_notes(p[defs.KEY_REVIEW_NOTES])
     for lc in locales:
         pm.set_title(p[lc][defs.KEY_TITLE], lc)
         pm.set_description(p[lc][defs.KEY_DESCRIPTION], lc)
