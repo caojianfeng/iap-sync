@@ -1,3 +1,5 @@
+#! /usr/bin/env python3
+
 import argparse
 import os
 import sys
@@ -278,7 +280,8 @@ dispatch_tbl = {
     'upload': upload,
 }
 
-if __name__ == '__main__':
+
+def main():
     parser = argparse.ArgumentParser(
         description='''
         -m | --mode sync: fetch from api defined by --config-file, generate itmsp package, for uploading to itunesconnect
