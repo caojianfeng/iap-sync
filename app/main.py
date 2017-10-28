@@ -3,7 +3,7 @@
 import argparse
 import os
 import sys
-from pathlib import Path
+from pathlib import Path, PurePath
 import shutil
 import subprocess
 from lxml import etree
@@ -17,7 +17,15 @@ from convert.convert import convert_product
 from model.product import Product, XML_NAMESPACE
 from validate import validate
 
-_transporter_script = '%s/../transporter.sh' % os.path.dirname(os.path.realpath(__file__))
+
+def get_transporter():
+    xcode_root_b = subprocess.check_output(['xcode-select', '-p'])
+    xcode_root = PurePath(str(xcode_root_b, 'utf-8').rstrip()).parent
+    transporter_ancestor_path = xcode_root.joinpath('Applications/Application Loader.app/Contents')
+    transporter_b = subprocess.check_output(['find', transporter_ancestor_path.as_posix(), '-name', 'iTMSTransporter'])
+    return str(transporter_b, 'utf-8').rstrip()
+
+transporter_path = get_transporter()
 
 def path_import(absolute_path):
     '''implementation taken from https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly'''
@@ -149,7 +157,7 @@ def sync(params, opts):
     # 下载App Store元数据
     try:
         subprocess.run([
-            _transporter_script, '-m', 'lookupMetadata', '-u', username, '-p', password,
+            transporter_path, '-m', 'lookupMetadata', '-u', username, '-p', password,
             '-destination', app_store_dir.as_posix(), '-vendor_id', APP_SKU, '-subitemtype', 'InAppPurchase'])
     except:
         print('获取App Store数据失败：%s.' % sys.exc_info()[0])
@@ -251,7 +259,7 @@ def verify(params, opts):
     # 初始化etree
     try:
         subprocess.run([
-            _transporter_script,
+            transporter_path,
             '-m', 'verify', '-u', username, '-p', password, '-f', p.as_posix()])
     except:
         print('验证失败：%s.' % sys.exc_info()[0])
@@ -267,7 +275,7 @@ def upload(params, opts):
     # 初始化etree
     try:
         subprocess.run([
-            _transporter_script,
+            transporter_path,
             '-m', 'upload', '-u', username, '-p', password, '-f', p.as_posix()])
     except:
         print('上传失败：%s.' % sys.exc_info()[0])
@@ -295,3 +303,5 @@ def main():
     params = extract_params(parser)
     dispatch_tbl[parser.mode](params, {'namespaces': {'x': XML_NAMESPACE}})
 
+
+main()
