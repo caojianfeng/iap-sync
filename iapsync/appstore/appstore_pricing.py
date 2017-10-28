@@ -6,7 +6,7 @@ _this_dir_ = os.path.dirname(os.path.realpath(__file__))
 
 def get_price_tier_table(path):
     if not path:
-        path = '%s/../assets/pricing-matrix.csv' % _this_dir_
+        path = '%s/pricing-matrix.csv' % _this_dir_
     rows = None
     with open(path) as csv_file:
         csv_reader = csv.reader(csv_file)

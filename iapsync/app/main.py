@@ -303,5 +303,3 @@ def main():
     params = extract_params(parser)
     dispatch_tbl[parser.mode](params, {'namespaces': {'x': XML_NAMESPACE}})
 
-
-main()

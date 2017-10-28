@@ -23,7 +23,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.0.4',
+    version='1.0.5',
 
     description='script to update iap to itunesconnect',
     long_description='what this does: fetches data from both itunesconnect and backend server that you configured; generates updated itmsp packge; upload that package; all in one command; python > 3 but only tested with 3.5, 3.6',
@@ -90,9 +90,10 @@ setup(
     # If there are data files included in your packages that need to be
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
-    package_data={
-        'iapsync': ['iapsync/config/product-screenshot.png', 'iapsync/assets/pricing-matrix.csv'],
-    },
+    #package_data={
+    #    'iapsync': ['iapsync/config/product-screenshot.png', 'iapsync/assets/pricing-matrix.csv'],
+    #},
+    include_package_data=True,
 
     # Although 'package_data' is the preferred approach, in some case you may
     # need to place data files outside of your packages. See:
