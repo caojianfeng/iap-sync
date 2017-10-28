@@ -1,5 +1,5 @@
 import requests
-from iapsync.defs import defs
+from ..defs import defs
 
 def access_list(obj, key_path):
     key_paths = key_path.split('.')

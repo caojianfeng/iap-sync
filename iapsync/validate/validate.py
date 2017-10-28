@@ -1,4 +1,4 @@
-from iapsync.defs import defs
+from ..defs import defs
 
 def validate(p):
     if p[defs.KEY_WHOLESALE_PRICE_TIER] == -1:

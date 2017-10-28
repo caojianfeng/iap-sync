@@ -1,5 +1,5 @@
-from iapsync.defs import defs
-from iapsync.appstore.appstore_pricing import calc_price_tier
+from ..defs import defs
+from ..appstore.appstore_pricing import calc_price_tier
 
 
 def convert_price(product, options):

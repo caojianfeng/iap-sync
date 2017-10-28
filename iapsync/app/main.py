@@ -10,12 +10,12 @@ import urllib
 import importlib.util
 
 from pathlib import Path, PurePath
-from iapsync.defs import defs
-from iapsync.config import config
-from iapsync.remote.fetch import get_products
-from iapsync.convert.convert import convert_product
-from iapsync.model.product import Product, XML_NAMESPACE
-from iapsync.validate import validate
+from ..defs import defs
+from ..config import config
+from ..remote.fetch import get_products
+from ..convert.convert import convert_product
+from ..model.product import Product, XML_NAMESPACE
+from ..validate import validate
 
 
 def get_transporter():

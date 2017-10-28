@@ -23,7 +23,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.0.3',
+    version='1.0.4',
 
     description='script to update iap to itunesconnect',
     long_description='what this does: fetches data from both itunesconnect and backend server that you configured; generates updated itmsp packge; upload that package; all in one command; python > 3 but only tested with 3.5, 3.6',
