@@ -17,7 +17,7 @@ from convert.convert import convert_product
 from model.product import Product, XML_NAMESPACE
 from validate import validate
 
-_transporter_script = '%s/transporter.sh' % os.path.dirname(os.path.realpath(__file__))
+_transporter_script = '%s/../transporter.sh' % os.path.dirname(os.path.realpath(__file__))
 
 def path_import(absolute_path):
     '''implementation taken from https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly'''
