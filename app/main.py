@@ -8,7 +8,7 @@ import shutil
 import subprocess
 from lxml import etree
 import urllib
-import defs
+from defs import defs
 import importlib.util
 
 from config import config

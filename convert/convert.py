@@ -1,5 +1,5 @@
 from pathlib import PurePath
-import defs as defs
+from defs import defs
 from appstore.appstore_pricing import calc_price_tier
 from config import config
 

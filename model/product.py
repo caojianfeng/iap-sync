@@ -4,7 +4,7 @@ from lxml import etree
 from copy import deepcopy
 from datetime import date, timedelta
 from pathlib import PurePath, Path
-import defs
+from defs import defs
 
 XML_NAMESPACE = 'http://apple.com/itunes/importer'
 

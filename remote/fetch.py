@@ -5,8 +5,7 @@ import traceback
 from functools import partial
 from functools import reduce
 import requests
-import defs
-
+from defs import defs
 
 def access_list(obj, key_path):
     key_paths = key_path.split('.')
