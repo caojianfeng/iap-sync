@@ -18,18 +18,18 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='iap-sync',
+    name='iapsync',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.0.2',
+    version='1.0.3',
 
     description='script to update iap to itunesconnect',
     long_description='what this does: fetches data from both itunesconnect and backend server that you configured; generates updated itmsp packge; upload that package; all in one command; python > 3 but only tested with 3.5, 3.6',
 
     # The project's main homepage.
-    url='https://github.com/bestofsong/iap-sync',
+    url='https://github.com/bestofsong/iapsync',
 
     # Author details
     author='bestofsong',
@@ -64,7 +64,7 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+    packages=find_packages(),
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
@@ -74,7 +74,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['lxml'],
+    install_requires=['lxml', 'requests'],
 
     python_requires='>=3',
 
@@ -91,7 +91,7 @@ setup(
     # installed, specify them here.  If using Python 2.6 or less, then these
     # have to be included in MANIFEST.in as well.
     package_data={
-        'iap-sync': ['transporter.sh', 'config/product-screenshot.png', 'assets/pricing-matrix.csv'],
+        'iapsync': ['iapsync/config/product-screenshot.png', 'iapsync/assets/pricing-matrix.csv'],
     },
 
     # Although 'package_data' is the preferred approach, in some case you may
@@ -105,7 +105,7 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
         'console_scripts': [
-            'iap-sync=app.main:main',
+            'iapsync=iapsync.app.main:main',
         ],
     },
 )

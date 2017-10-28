@@ -3,19 +3,19 @@
 import argparse
 import os
 import sys
-from pathlib import Path, PurePath
 import shutil
 import subprocess
 from lxml import etree
 import urllib
-from defs import defs
 import importlib.util
 
-from config import config
-from remote.fetch import get_products
-from convert.convert import convert_product
-from model.product import Product, XML_NAMESPACE
-from validate import validate
+from pathlib import Path, PurePath
+from iapsync.defs import defs
+from iapsync.config import config
+from iapsync.remote.fetch import get_products
+from iapsync.convert.convert import convert_product
+from iapsync.model.product import Product, XML_NAMESPACE
+from iapsync.validate import validate
 
 
 def get_transporter():

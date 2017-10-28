@@ -1,11 +1,5 @@
-import json
-import time
-import sys
-import traceback
-from functools import partial
-from functools import reduce
 import requests
-from defs import defs
+from iapsync.defs import defs
 
 def access_list(obj, key_path):
     key_paths = key_path.split('.')

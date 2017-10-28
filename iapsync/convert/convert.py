@@ -1,7 +1,6 @@
-from pathlib import PurePath
-from defs import defs
-from appstore.appstore_pricing import calc_price_tier
-from config import config
+from iapsync.defs import defs
+from iapsync.appstore.appstore_pricing import calc_price_tier
+
 
 def convert_price(product, options):
     tier = calc_price_tier(product[defs.CONST_PRICE])
