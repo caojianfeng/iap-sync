@@ -140,6 +140,7 @@ def extract_params(parser):
         'APPSTORE_PACKAGE_NAME': APPSTORE_PACKAGE_NAME,
         'username': itc_conf['username'],
         'password': itc_conf['password'],
+        'skip_appstore': True if parser.skip_appstore else False,
     }
 
 
@@ -159,21 +160,22 @@ def sync(params, opts):
     if defaults and defaults.get('DEFAULT_SCREENSHOT_PATH'):
         DEFAULT_SCREENSHOT_PATH = defaults.get('DEFAULT_SCREENSHOT_PATH')
 
-    # clear APPSTORE_META dir
     app_store_dir = Path(config.APPSTORE_META_DIR)
-    if app_store_dir.exists():
-        shutil.rmtree(app_store_dir.as_posix())
-    app_store_dir.mkdir()
+    if not params.get('skip_appstore', False):
+        # clear APPSTORE_META dir
+        if app_store_dir.exists():
+            shutil.rmtree(app_store_dir.as_posix())
+        app_store_dir.mkdir()
 
-    # 下载App Store元数据
-    try:
-        subprocess.run([
-            transporter_path, '-m', 'lookupMetadata', '-u', username, '-p', password,
-            '-destination', app_store_dir.as_posix(), '-vendor_id', APP_SKU, '-subitemtype', 'InAppPurchase'])
-    except:
-        print('获取App Store数据失败：%s.' % sys.exc_info()[0])
-        raise
-    print('下载App Store元数据完成.')
+        # 下载App Store元数据
+        try:
+            subprocess.run([
+                transporter_path, '-m', 'lookupMetadata', '-u', username, '-p', password,
+                '-destination', app_store_dir.as_posix(), '-vendor_id', APP_SKU, '-subitemtype', 'InAppPurchase'])
+        except:
+            print('获取App Store数据失败：%s.' % sys.exc_info()[0])
+            raise
+        print('下载App Store元数据完成.')
 
 
     # clear tmp dir
@@ -310,6 +312,7 @@ def main():
     )
     parser.add_argument('-c', '--config-file')
     parser.add_argument('-m', '--mode')
+    parser.add_argument('--skip-appstore', default=False, type=bool)
     parser = parser.parse_args()
     params = extract_params(parser)
     dispatch_tbl[parser.mode](params, {'namespaces': {'x': XML_NAMESPACE}})
