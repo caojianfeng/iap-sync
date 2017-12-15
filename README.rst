@@ -1,12 +1,21 @@
-A script to fetch iaps from itunesconnect, fetch json from customed configured api, merge them, and push merged itmsp to itunesconnect
+A script to fetch iaps from itunesconnect, fetch json from customed configured api, merge them, and push merged itmsp to itunesconnect  
 
-Usage:
-iap-sync -c <your config file> -m <sync|verify|upload>
+Usage:  
 
-Note: api data is extracted using a dict of lambda expressions, well, for my convenience ;], refer to the following sample config file
-
-A sample config file:
 ```
+pip3 install iapsync  
+
+iapsync -c <your config file> -m <sync|verify|upload>  
+```
+
+Note: api data is extracted using a dict of lambda expressions, well, for my convenience ;], refer to the following sample config file  
+
+A sample config file:  
+
+[sample file link: https://raw.githubusercontent.com/bestofsong/iap-sync/master/assets/config.sample.py](https://raw.githubusercontent.com/bestofsong/iap-sync/master/assets/config.sample.py)
+
+
+```python
 # itc_conf, api_meta are required
 # defaults is optional
 
@@ -46,7 +55,7 @@ defaults = {
 api_meta = [
     {
         # return json
-        'api': 'http://www.smartstudy.com/api/products/live?examinationId=2',
+        'api': 'url_that_responds with_json',
 
         # used to locate product list, i.e. json().get('data').get('productList ')
         'key_path': 'data.productList',
@@ -77,7 +86,7 @@ api_meta = [
 
     {
         # return json
-        'api': 'http://dev.smartstudy.com:6004/api/products/live?examinationId=2',
+        'api': 'another json endpoint',
 
         # locate product list
         'key_path': 'data.productList',
@@ -107,5 +116,5 @@ api_meta = [
     }
 ]
 
-
 ```
+
