@@ -136,6 +136,20 @@ class Product:
         )[0]
         node.text = str(value)
 
+    def type(self):
+        node = self.elem.xpath(
+            'x:type',
+            namespaces = self.namespaces
+        )[0]
+        return node.text
+
+    def set_type(self, value):
+        node = self.elem.xpath(
+            'x:type',
+            namespaces = self.namespaces
+        )[0]
+        node.text = str(value)
+
     def reference_name(self):
         node = self.elem.xpath(
             'x:reference_name',
@@ -159,11 +173,15 @@ class Product:
         return node[0].text if node and len(node) else ''
 
     def set_title(self, value, locale):
-        node = self.elem.xpath(
+        nodes = self.elem.xpath(
             'x:locales/x:locale[@name = $loc]/x:title',
             namespaces = self.namespaces,
             loc = locale
-        )[0]
+        )
+        if not nodes or len(nodes) <= 0:
+            return
+
+        node = nodes[0]
         node.text = str(value)
 
     def description(self, locale):
@@ -175,11 +193,14 @@ class Product:
         return node[0].text if node and len(node) else ''
 
     def set_description(self, value, locale):
-        node = self.elem.xpath(
+        nodes = self.elem.xpath(
             'x:locales/x:locale[@name = $loc]/x:description',
             namespaces = self.namespaces,
             loc = locale
-        )[0]
+        )
+        if not nodes or len(nodes) <= 0:
+            return
+        node = nodes[0]
         node.text = str(value)
 
     def review_notes(self):

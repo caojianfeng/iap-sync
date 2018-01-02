@@ -35,18 +35,34 @@ def path_import(absolute_path):
     return module
 
 
-def is_product_changed(product_elem, product_dict):
-    # only care about price tier
+def is_product_changed(product_elem, product_dict, price_only=False):
     pm = Product(product_elem)
+    # cleared_for_sale, type is always checked
+    cleared_for_sale_now = pm.cleared_for_sale()
+    cleared_for_sale_next = product_dict[defs.KEY_CLEARED_FOR_SALE]
+    if cleared_for_sale_next and not cleared_for_sale_now:
+        return True
+    if cleared_for_sale_now and not cleared_for_sale_next:
+        return True
+
+    type_now = pm.type()
+    type_next = product_dict[defs.KEY_TYPE]
+    if type_now != type_next:
+        return True
+
     price_tier_now = pm.price_tier()
     price_tier_next = int(product_dict[defs.KEY_WHOLESALE_PRICE_TIER])
     if price_tier_now != price_tier_next:
         return True
 
+    # only care about price tier
+    if price_only:
+        return False
+
     review_notes_now = pm.review_notes()
     review_notes_next = product_dict[defs.KEY_REVIEW_NOTES]
     if review_notes_next != review_notes_now:
-        return  True
+        return True
 
     locales = product_dict['locales']
     for lc in locales:
@@ -60,23 +76,16 @@ def is_product_changed(product_elem, product_dict):
         if desc_next != desc_now:
             return True
 
-    cleared_for_sale_now = pm.cleared_for_sale()
-    cleared_for_sale_next = product_dict[defs.KEY_CLEARED_FOR_SALE]
-    if cleared_for_sale_next and not cleared_for_sale_now:
-        return True
-    if cleared_for_sale_now and not cleared_for_sale_next:
-        return True
-
     return False
 
 
-def update_product(elem, p):
+def update_product(elem, p, price_only=False):
     pm = Product(elem)
-    if not is_product_changed(elem, p):
+    if not is_product_changed(elem, p, price_only):
         return
 
     locales = p['locales']
-    print('update: now: %s, next: %s' % (pm, Product(Product.create_node(p))))
+    # print('update: now: %s, next: %s' % (pm, Product(Product.create_node(p))))
     pm.set_price_tier(p[defs.KEY_WHOLESALE_PRICE_TIER])
     pm.set_cleared_for_sale(p[defs.KEY_CLEARED_FOR_SALE])
     pm.set_reference_name(p[defs.KEY_REFERENCE_NAME])
@@ -141,6 +150,7 @@ def extract_params(parser):
         'username': itc_conf['username'],
         'password': itc_conf['password'],
         'skip_appstore': True if parser.skip_appstore else False,
+        'price_only': True if parser.price_only else False,
     }
 
 
@@ -156,12 +166,15 @@ def sync(params, opts):
     username = params['username']
     password = params['password']
 
+    price_only = params.get('price_only', False)
+
     DEFAULT_SCREENSHOT_PATH = config.DEFAULT_SCREENSHOT_PATH
     if defaults and defaults.get('DEFAULT_SCREENSHOT_PATH'):
         DEFAULT_SCREENSHOT_PATH = defaults.get('DEFAULT_SCREENSHOT_PATH')
 
     app_store_dir = Path(config.APPSTORE_META_DIR)
-    if not params.get('skip_appstore', False):
+    skip_appstore = params.get('skip_appstore', False)
+    if not skip_appstore:
         # clear APPSTORE_META dir
         if app_store_dir.exists():
             shutil.rmtree(app_store_dir.as_posix())
@@ -256,7 +269,7 @@ def sync(params, opts):
                 print('new: id: %s, name: %s' % (p[defs.KEY_PRODUCT_ID], p[p['locales'][0]][defs.KEY_TITLE]))
                 append_product(in_app_purchases, p)
         else:
-            update_product(e, p)
+            update_product(e, p, price_only)
 
     # save things
     new_metafile_path = new_package_path.joinpath(config.APPSTORE_METAFILE)
@@ -313,6 +326,7 @@ def main():
     parser.add_argument('-c', '--config-file')
     parser.add_argument('-m', '--mode')
     parser.add_argument('--skip-appstore', default=False, type=bool)
+    parser.add_argument('--price-only', default=False, type=bool)
     parser = parser.parse_args()
     params = extract_params(parser)
     dispatch_tbl[parser.mode](params, {'namespaces': {'x': XML_NAMESPACE}})

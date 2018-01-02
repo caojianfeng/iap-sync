@@ -21,6 +21,7 @@ def get_products(api_meta):
         product_list = access_list(json, mt['key_path'])
         for p in product_list:
             new_item = {
+                'raw_product': p,
                 defs.KEY_PRODUCT_ID: k_m[defs.KEY_PRODUCT_ID](p),
                 defs.KEY_REFERENCE_NAME: k_m[defs.KEY_REFERENCE_NAME](p),
                 defs.KEY_TYPE: k_m[defs.KEY_TYPE](p),
