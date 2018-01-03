@@ -5,3 +5,4 @@ def validate(p):
         print('ignore: id: %s, name: %s' % (p[defs.KEY_PRODUCT_ID], p[p['locales'][0]][defs.KEY_TITLE]))
         return False
     return True
+

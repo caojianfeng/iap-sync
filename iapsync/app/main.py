@@ -6,6 +6,7 @@ import sys
 import shutil
 import subprocess
 from lxml import etree
+import hashlib
 import urllib
 import importlib.util
 
@@ -13,8 +14,8 @@ from pathlib import Path, PurePath
 from ..defs import defs
 from ..config import config
 from ..remote.fetch import get_products
-from ..convert.convert import convert_product
-from ..model.product import Product, XML_NAMESPACE
+from ..convert.convert import convert_product, fix_appstore_product
+from ..model.product import AppStoreProduct, XML_NAMESPACE, Product
 from ..validate import validate
 
 
@@ -27,6 +28,7 @@ def get_transporter():
 
 transporter_path = get_transporter()
 
+
 def path_import(absolute_path):
     '''implementation taken from https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly'''
     spec = importlib.util.spec_from_file_location(absolute_path, absolute_path)
@@ -36,7 +38,7 @@ def path_import(absolute_path):
 
 
 def is_product_changed(product_elem, product_dict, price_only=False):
-    pm = Product(product_elem)
+    pm = AppStoreProduct(product_elem)
     # cleared_for_sale, type is always checked
     cleared_for_sale_now = pm.cleared_for_sale()
     cleared_for_sale_next = product_dict[defs.KEY_CLEARED_FOR_SALE]
@@ -79,9 +81,72 @@ def is_product_changed(product_elem, product_dict, price_only=False):
     return False
 
 
-def update_product(elem, p, price_only=False):
-    pm = Product(elem)
-    if not is_product_changed(elem, p, price_only):
+def fix_appstore_screenshots(in_app_purchases, opts):
+    nspc = opts['nspc']
+    screenshot_dir = opts['screenshot_dir']
+    existing_iaps = in_app_purchases.xpath(
+        'x:in_app_purchase',
+        namespaces=nspc
+    )
+
+    if not existing_iaps or len(existing_iaps) <= 0:
+        return
+
+    # bundled default screenshot
+    DEFAULT_SCREENSHOT_PATH = config.DEFAULT_SCREENSHOT_PATH
+    screenshot_file = Path(DEFAULT_SCREENSHOT_PATH)
+    md5 = hashlib.md5(open(screenshot_file.as_posix(), 'rb').read()).hexdigest()
+    size = screenshot_file.stat().st_size
+
+    for p in existing_iaps:
+        pid = p.xpath(
+            'x:product_id',
+            namespaces=nspc
+        )[0].text
+
+        size_node = p.xpath(
+            'x:review_screenshot/x:size',
+            namespaces=nspc
+        )[0]
+        md5_node = p.xpath(
+            'x:review_screenshot/x:checksum[@type="md5"]',
+            namespaces=nspc
+        )[0]
+        name_node = p.xpath(
+            'x:review_screenshot/x:file_name',
+            namespaces=nspc
+        )[0]
+        screenshot_name = '%s.%s' % (pid, 'png')
+        name_node.text = screenshot_name
+        md5_node.text = str(md5)
+        size_node.text = str(size)
+        screenshot_path = screenshot_dir.joinpath(screenshot_name).as_posix()
+        shutil.copy(DEFAULT_SCREENSHOT_PATH, screenshot_path)
+
+
+def fix_appstore_products(in_app_purchases, options):
+    nspc = options['nspc']
+    params = options['params']
+    limits = params['limits']
+    existing_iaps = in_app_purchases.xpath(
+        'x:in_app_purchase',
+        namespaces=nspc
+    )
+
+    if not existing_iaps or len(existing_iaps) <= 0:
+        return
+
+    for p in existing_iaps:
+        pp = AppStoreProduct(p)
+        fix_appstore_product(pp, limits)
+
+
+def update_product(elem, p, options):
+    price_only = options.get('price_only', False)
+    fix_screenshots = options.get('fix_screenshots', False)
+
+    pm = AppStoreProduct(elem)
+    if not fix_screenshots and not is_product_changed(elem, p, price_only):
         return
 
     locales = p['locales']
@@ -94,6 +159,11 @@ def update_product(elem, p, price_only=False):
         pm.set_title(p[lc][defs.KEY_TITLE], lc)
         pm.set_description(p[lc][defs.KEY_DESCRIPTION], lc)
 
+    if fix_screenshots:
+        screenshot_info = AppStoreProduct.get_screenshot_info(p)
+        pm.set_screenshot_md5(screenshot_info['md5'])
+        pm.set_screenshot_size(screenshot_info['size'])
+        pm.set_screenshot_name(screenshot_info['name'])
 
 def find_product(in_app_purchases, product_dict, nspc):
     res_set = in_app_purchases.xpath(
@@ -105,7 +175,7 @@ def find_product(in_app_purchases, product_dict, nspc):
 
 
 def append_product(in_app_purchases, product_dict):
-    node = Product.create_node(product_dict)
+    node = AppStoreProduct.create_node(product_dict)
     in_app_purchases.append(node)
 
 
@@ -121,6 +191,8 @@ def extract_params(parser):
     itc_conf = config_md.itc_conf
     defaults = config_md.defaults if hasattr(config_md, 'defaults') else None
     excludes = itc_conf.get('excludes', {})
+    fix_screenshots = True if parser.fix_screenshots else False
+    force_update = True if parser.force_update else False
 
     limits = {
         'NAME_MAX': 25,
@@ -150,7 +222,9 @@ def extract_params(parser):
         'username': itc_conf['username'],
         'password': itc_conf['password'],
         'skip_appstore': True if parser.skip_appstore else False,
-        'price_only': True if parser.price_only else False,
+        'price_only': True if not fix_screenshots and not force_update and parser.price_only else False,
+        'fix_screenshots': fix_screenshots,
+        'force_update': force_update,
     }
 
 
@@ -165,8 +239,6 @@ def sync(params, opts):
     APPSTORE_PACKAGE_NAME = params['APPSTORE_PACKAGE_NAME']
     username = params['username']
     password = params['password']
-
-    price_only = params.get('price_only', False)
 
     DEFAULT_SCREENSHOT_PATH = config.DEFAULT_SCREENSHOT_PATH
     if defaults and defaults.get('DEFAULT_SCREENSHOT_PATH'):
@@ -233,13 +305,15 @@ def sync(params, opts):
         print('nothing to do, no products fetched')
         sys.exit(0)
 
-    # 转换
+    # 转换，计算价格阶梯，必须先于filter，后者排出阶梯=-1的商品
     options = {
         'default_screenshot': DEFAULT_SCREENSHOT_PATH,
         'screenshot_dir': new_package_path.as_posix(),
     }
     options.update(limits)
-    converted_products = list(map(lambda pr: convert_product(pr, options), raw_products))
+    converted_products = list(map(
+        lambda pr: convert_product(Product(pr), options).unwrapped(),
+        raw_products))
 
     # 过滤
     new_products = list(filter(lambda pp: pp[defs.KEY_PRODUCT_ID] not in excludes and validate.validate(pp), converted_products))
@@ -247,7 +321,7 @@ def sync(params, opts):
         print('nothing to do, all filtered out')
         sys.exit(0)
 
-    # copy screenshots
+    # copy screenshots，顺序相关，必须在update_product之前运行，不然无法计算size, md5
     new_package_path.mkdir()
     for pp in new_products:
         screenshot_path = new_package_path.joinpath('%s.%s' % (pp[defs.KEY_PRODUCT_ID], 'png')).as_posix()
@@ -269,7 +343,15 @@ def sync(params, opts):
                 print('new: id: %s, name: %s' % (p[defs.KEY_PRODUCT_ID], p[p['locales'][0]][defs.KEY_TITLE]))
                 append_product(in_app_purchases, p)
         else:
-            update_product(e, p, price_only)
+            update_product(e, p, params)
+
+    # appstore screenshot may used to be edited manually, which cannot pass verify
+    # : screenshot name and stats not persistent, fix by writing them
+    if params.get('fix_screenshots'):
+        fix_appstore_screenshots(in_app_purchases, {'nspc': namespaces, 'screenshot_dir': new_package_path})
+
+    if params.get('force_update'):
+        fix_appstore_products(in_app_purchases, {'nspc': namespaces, 'params': params})
 
     # save things
     new_metafile_path = new_package_path.joinpath(config.APPSTORE_METAFILE)
@@ -327,6 +409,8 @@ def main():
     parser.add_argument('-m', '--mode')
     parser.add_argument('--skip-appstore', default=False, type=bool)
     parser.add_argument('--price-only', default=False, type=bool)
+    parser.add_argument('--fix-screenshots', default=False, type=bool)
+    parser.add_argument('--force-update', default=False, type=bool)
     parser = parser.parse_args()
     params = extract_params(parser)
     dispatch_tbl[parser.mode](params, {'namespaces': {'x': XML_NAMESPACE}})

@@ -4,9 +4,10 @@ from ..appstore.appstore_pricing import calc_price_tier
 
 
 def convert_price(product, options):
-    tier = calc_price_tier(product[defs.CONST_PRICE])
-    product[defs.KEY_WHOLESALE_PRICE_TIER] = tier
+    tier = calc_price_tier(product.unwrapped()[defs.CONST_PRICE])
+    product.set_price_tier(tier)
     return product
+
 
 def pad_or_trim(s, max, min):
     ll = len(s)
@@ -16,28 +17,33 @@ def pad_or_trim(s, max, min):
         return s[:max]
     return s
 
+
 def fix_title(product, options):
-    locales = product['locales']
+    locales = product.locales()
     for lc in locales:
-        t = product[lc][defs.KEY_TITLE]
-        product[lc][defs.KEY_TITLE] = pad_or_trim(t, options['NAME_MAX'], options['NAME_MIN'])
+        t = product.title(lc)
+        fixed = pad_or_trim(t, options['NAME_MAX'], options['NAME_MIN'])
+        product.set_title(fixed, lc)
     return product
 
 
 def fix_description(product, options):
-    locales = product['locales']
+    locales = product.locales()
     for lc in locales:
-        t = product[lc][defs.KEY_DESCRIPTION]
-        product[lc][defs.KEY_DESCRIPTION] = pad_or_trim(t, options['DESC_MAX'], options['DESC_MIN'])
+        t = product.description(lc)
+        fixed = pad_or_trim(t, options['DESC_MAX'], options['DESC_MIN'])
+        product.set_description(fixed, lc)
     return product
 
 def fix_review(product, options):
-    r = product[defs.KEY_REVIEW_NOTES]
-    product[defs.KEY_REVIEW_NOTES] = pad_or_trim(r, options['REVIEW_MAX'], options['REVIEW_MIN'])
+    r = product.review_notes()
+    fixed = pad_or_trim(r, options['REVIEW_MAX'], options['REVIEW_MIN'])
+    product.set_review_notes(fixed)
     return product
 
+
 def add_validity(product, options):
-    raw_product = product.get('raw_product', None)
+    raw_product = product.raw_product()
     if not raw_product:
         return product
 
@@ -53,15 +59,17 @@ def add_validity(product, options):
     else:
         return product
 
-    locales = product['locales']
+    locales = product.locales()
     for lc in locales:
-        t = product[lc][defs.KEY_DESCRIPTION]
+        t = product.description(lc)
         with_validity = '%s%s' % (validity_desc, t)
-        product[lc][defs.KEY_DESCRIPTION] = pad_or_trim(
+        fixed = pad_or_trim(
             with_validity,
             options['DESC_MAX'],
             options['DESC_MIN'])
+        product.set_description(fixed, lc)
     return product
+
 
 def convert_product(product, options):
     converters = [convert_price, fix_description, add_validity, fix_title, fix_review]
@@ -70,3 +78,31 @@ def convert_product(product, options):
         ret = t(ret, options)
     return ret
 
+
+def check_title(p, lc, options):
+    t = p.title(lc)
+    return options['NAME_MIN'] <= len(t) <= options['NAME_MAX']
+
+
+def check_desc(p, lc, options):
+    d = p.description(lc)
+    return options['DESC_MIN'] <= len(d) <= options['DESC_MAX']
+
+
+def check_review_note(p, options):
+    r = p.review_notes()
+    return options['REVIEW_MIN'] <= len(r) <= options['REVIEW_MAX']
+
+
+def fix_appstore_product(p, options):
+    lcs = p.locales()
+    for lc in lcs:
+        if not check_title(p, lc, options):
+            fix_title(p, options)
+        if not check_desc(p, lc, options):
+            fix_description(p, options)
+
+    if not check_review_note(p, options):
+        fix_review(p, options)
+
+    return p

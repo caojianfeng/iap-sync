@@ -49,10 +49,19 @@ __template_str = '''
 TEMPLATE_NODE = etree.fromstring(__template_str)
 
 
-class Product:
+class AppStoreProduct:
+    def get_screenshot_info(p_dict):
+        screenshot_file = Path(p_dict[defs.KEY_REVIEW_SCREENSHOT])
+        md5 = hashlib.md5(open(screenshot_file.as_posix(), 'rb').read()).hexdigest()
+        return {
+            'size': screenshot_file.stat().st_size,
+            'md5': md5,
+            'name': PurePath(p_dict[defs.KEY_REVIEW_SCREENSHOT]).name,
+        }
+
     def create_node(p_dict):
         ret = deepcopy(TEMPLATE_NODE)
-        pm = Product(ret)
+        pm = AppStoreProduct(ret)
 
         pm.set_product_id(p_dict[defs.KEY_PRODUCT_ID])
         pm.set_reference_name(p_dict[defs.KEY_REFERENCE_NAME])
@@ -74,6 +83,13 @@ class Product:
     def __init__(self, p_elem, namespace = XML_NAMESPACE):
         self.elem = p_elem
         self.namespaces = {'x': namespace}
+
+    def locales(self):
+        return self.elem.xpath(
+            'x:locales/x:locale/@name',
+            namespaces=self.namespaces
+        )
+
 
     def price_tier(self):
         text = self.elem.xpath(
@@ -211,10 +227,14 @@ class Product:
         return node[0].text if node and len(node) else ''
 
     def set_review_notes(self, value):
-        node = self.elem.xpath(
+        nodes = self.elem.xpath(
             'x:review_notes',
             namespaces = self.namespaces
-        )[0]
+        )
+        if not nodes or len(nodes) <= 0:
+            node = etree.SubElement(self.elem, '{%s}review_notes' % XML_NAMESPACE)
+        else:
+            node = nodes[0]
         node.text = str(value)
 
     def cleared_for_sale(self):
@@ -234,3 +254,73 @@ class Product:
     def __str__(self):
         return str(etree.tostring(self.elem, encoding = 'utf-8'), 'utf-8')
 
+
+class Product:
+    def __init__(self, p_dict):
+        self.p_dict = p_dict
+
+    def locales(self):
+        return self.p_dict.get('locales')
+
+    def price_tier(self):
+        return self.p_dict.get(defs.KEY_WHOLESALE_PRICE_TIER)
+
+    def set_price_tier(self, value):
+        self.p_dict[defs.KEY_WHOLESALE_PRICE_TIER] = value
+
+    def type(self):
+        return self.p_dict[defs.KEY_TYPE]
+
+    def set_type(self, value):
+        self.p_dict[defs.KEY_TYPE] = value
+
+    def reference_name(self):
+        return self.p_dict[defs.KEY_REFERENCE_NAME]
+
+    def set_reference_name(self, value):
+        self.p_dict[defs.KEY_REFERENCE_NAME] = value
+
+    def title(self, locale):
+        loc = self.p_dict.get(locale)
+        if not loc:
+            return None
+        return loc.get(defs.KEY_TITLE)
+
+    def set_title(self, value, locale):
+        loc = self.p_dict.get(locale)
+        if not loc:
+            return
+        loc[defs.KEY_TITLE] = value
+
+    def description(self, locale):
+        loc = self.p_dict.get(locale)
+        if not loc:
+            return None
+        return loc.get(defs.KEY_DESCRIPTION)
+
+    def set_description(self, value, locale):
+        loc = self.p_dict.get(locale)
+        if not loc:
+            return
+        loc[defs.KEY_DESCRIPTION] = value
+
+    def review_notes(self):
+        return self.p_dict.get(defs.KEY_REVIEW_NOTES)
+
+    def set_review_notes(self, value):
+        self.p_dict[defs.KEY_REVIEW_NOTES] = value
+
+    def cleared_for_sale(self):
+        return self.p_dict.get(defs.KEY_CLEARED_FOR_SALE)
+
+    def set_cleared_for_sale(self, value):
+        self.p_dict[defs.KEY_CLEARED_FOR_SALE] = value
+
+    def raw_product(self):
+        return self.p_dict.get('raw_product')
+
+    def unwrapped(self):
+        return self.p_dict
+
+    def __str__(self):
+        return str(self.p_dict, 'utf-8')
