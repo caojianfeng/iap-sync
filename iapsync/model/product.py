@@ -15,7 +15,7 @@ __template_str = '''
 <in_app_purchase xmlns="%s">
     <product_id>111111111111111</product_id>
     <reference_name>11111111111111111</reference_name>
-    <type>non-consumable</type>
+    <type>not-sure-yet</type>
     <products>
         <product>
             <cleared_for_sale>true</cleared_for_sale>
@@ -66,6 +66,7 @@ class AppStoreProduct:
         pm.set_product_id(p_dict[defs.KEY_PRODUCT_ID])
         pm.set_reference_name(p_dict[defs.KEY_REFERENCE_NAME])
         pm.set_price_tier(p_dict[defs.KEY_WHOLESALE_PRICE_TIER])
+        pm.set_type(p_dict[defs.KEY_TYPE])
         locs = p_dict['locales']
         for loc in locs:
             pm.set_title(p_dict[loc][defs.KEY_TITLE], loc)

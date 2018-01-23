@@ -143,10 +143,9 @@ def fix_appstore_products(in_app_purchases, options):
 
 def update_product(elem, p, options):
     price_only = options.get('price_only', False)
-    fix_screenshots = options.get('fix_screenshots', False)
 
     pm = AppStoreProduct(elem)
-    if not fix_screenshots and not is_product_changed(elem, p, price_only):
+    if not is_product_changed(elem, p, price_only):
         return
 
     locales = p['locales']
@@ -159,11 +158,6 @@ def update_product(elem, p, options):
         pm.set_title(p[lc][defs.KEY_TITLE], lc)
         pm.set_description(p[lc][defs.KEY_DESCRIPTION], lc)
 
-    if fix_screenshots:
-        screenshot_info = AppStoreProduct.get_screenshot_info(p)
-        pm.set_screenshot_md5(screenshot_info['md5'])
-        pm.set_screenshot_size(screenshot_info['size'])
-        pm.set_screenshot_name(screenshot_info['name'])
 
 def find_product(in_app_purchases, product_dict, nspc):
     res_set = in_app_purchases.xpath(
