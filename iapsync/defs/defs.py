@@ -11,3 +11,7 @@ KEY_WHOLESALE_PRICE_TIER = 'wholesale_price_tier'
 
 CONST_PRICE = 'price'
 CONST_PRODUCT_ID_PREF = 'product_id_pref'
+CONST_AUTO_RENEWABLE = 'auto-renewable'
+CONST_CONSUMABLE = 'consumable'
+CONST_NON_CONSUMABLE = 'non-consumable'
+CONST_SUBSCRIPTION = 'subscription'
