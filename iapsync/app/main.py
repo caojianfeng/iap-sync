@@ -148,6 +148,8 @@ def update_product(elem, p, options):
     if not is_product_changed(elem, p, price_only):
         return
 
+    print('update: id: %s, name: %s' % (p[defs.KEY_PRODUCT_ID], p[p['locales'][0]][defs.KEY_TITLE]))
+
     locales = p['locales']
     # print('update: now: %s, next: %s' % (pm, Product(Product.create_node(p))))
     pm.set_price_tier(p[defs.KEY_WHOLESALE_PRICE_TIER])
