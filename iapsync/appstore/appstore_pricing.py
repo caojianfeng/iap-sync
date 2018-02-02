@@ -59,14 +59,32 @@ def get_price_tier_table(path):
         ret.append((t, price_rmb[ii]))
     return ret
 
+def calc_price_tier_floor(price):
+    tier_table = get_price_tier_table(None)
+    last_t = None
+    for ii, tup in enumerate(tier_table):
+        t, p = tup
+        if p >= price:
+            if last_t is None:
+                return t
+            return last_t
+        last_t = t
+    return -1
 
-def calc_price_tier(price):
+def calc_price_tier_ceil(price):
     tier_table = get_price_tier_table(None)
     for ii, tup in enumerate(tier_table):
         t, p = tup
         if p >= price:
             return t
     return -1
+
+
+def calc_price_tier(price, ceil_price=False):
+    if ceil_price:
+        return calc_price_tier_ceil(price)
+    else:
+        return calc_price_tier_floor(price)
 
 if __name__ == '__main__':
     print(calc_price_tier(13))

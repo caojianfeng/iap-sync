@@ -221,6 +221,7 @@ def extract_params(parser):
         'price_only': True if not fix_screenshots and not force_update and parser.price_only else False,
         'fix_screenshots': fix_screenshots,
         'force_update': force_update,
+        'ceil_price': True if parser.ceil_price else False,
     }
 
 
@@ -307,6 +308,7 @@ def sync(params, opts):
         'screenshot_dir': new_package_path.as_posix(),
     }
     options.update(limits)
+    options.update(params)
     converted_products = list(map(
         lambda pr: convert_product(Product(pr), options).unwrapped(),
         raw_products))
@@ -407,6 +409,7 @@ def main():
     parser.add_argument('--price-only', default=False, type=bool)
     parser.add_argument('--fix-screenshots', default=False, type=bool)
     parser.add_argument('--force-update', default=False, type=bool)
+    parser.add_argument('--ceil-price', default=False, type=bool)
     parser = parser.parse_args()
     params = extract_params(parser)
     dispatch_tbl[parser.mode](params, {'namespaces': {'x': XML_NAMESPACE}})
