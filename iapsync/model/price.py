@@ -5,10 +5,12 @@ def extract_price(data):
     for it in data:
         if not it or len(it['products']) <= 0:
             continue
+
         by_env = {}
         ret.append(by_env)
-        by_env['callback'] = it['meta']['callback']
-        by_env['callback_params'] = it['meta']['callback_params']
+        meta = it['meta']
+        by_env['callback'] = meta.get('callback', None)
+        by_env['callback_params'] = meta.get('callback_params', None)
         by_env['products'] = list(map(
             lambda p: {
                 'product_id': p[defs.KEY_PRODUCT_RAW_ID],
