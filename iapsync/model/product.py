@@ -263,6 +263,13 @@ class Product:
     def locales(self):
         return self.p_dict.get('locales')
 
+    def id(self):
+        return self.p_dict[defs.KEY_PRODUCT_ID]
+
+
+    def env(self):
+        return self.p_dict[defs.KEY_ENV]
+
     def price_tier(self):
         return self.p_dict.get(defs.KEY_WHOLESALE_PRICE_TIER)
 

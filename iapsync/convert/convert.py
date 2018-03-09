@@ -71,8 +71,15 @@ def add_validity(product, options):
     return product
 
 
+def product_id(p, options):
+    env = p.env()
+    raw_id = p.raw_product()[defs.KEY_PRODUCT_RAW_ID]
+    p.unwrapped()[defs.KEY_PRODUCT_ID] = '%s.%s' % (env, str(raw_id))
+    return p
+
+
 def convert_product(product, options):
-    converters = [convert_price, fix_description, add_validity, fix_title, fix_review]
+    converters = [product_id, convert_price, fix_description, add_validity, fix_title, fix_review]
     ret = product
     for t in converters:
         ret = t(ret, options)

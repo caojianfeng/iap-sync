@@ -15,6 +15,7 @@ def get_products(api_meta):
     for mt in metas:
         k_m = mt['key_map']
         api = mt['api']
+        env = mt['env']
         json = requests.get(api).json()
         if not isinstance(json, list) and not isinstance(json, dict):
             continue
@@ -22,7 +23,8 @@ def get_products(api_meta):
         for p in product_list:
             new_item = {
                 'raw_product': p,
-                defs.KEY_PRODUCT_ID: k_m[defs.KEY_PRODUCT_ID](p),
+                defs.KEY_ENV: env,
+                defs.KEY_PRODUCT_RAW_ID: k_m[defs.KEY_PRODUCT_RAW_ID](p),
                 defs.KEY_REFERENCE_NAME: k_m[defs.KEY_REFERENCE_NAME](p),
                 defs.KEY_TYPE: k_m[defs.KEY_TYPE](p),
                 defs.KEY_REVIEW_SCREENSHOT: k_m[defs.KEY_REVIEW_SCREENSHOT](p) if k_m[defs.KEY_REVIEW_SCREENSHOT] else None,
