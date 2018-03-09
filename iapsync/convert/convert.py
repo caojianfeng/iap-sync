@@ -48,6 +48,9 @@ def fix_review(product, options):
 
 
 def add_validity(product, options):
+    if product.type() != defs.CONST_SUBSCRIPTION:
+        return product
+
     validity_type = product.validityType()
     validity = product.validity()
     if validity is None or validity_type is None:
