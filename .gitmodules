@@ -1,0 +1,3 @@
+[submodule "iapsync-config"]
+	path = iapsync-config
+	url = git@code.smartstudy.com:wansong/iapsync-config.git

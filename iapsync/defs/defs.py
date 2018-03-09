@@ -8,6 +8,8 @@ KEY_REVIEW_NOTES = 'review_notes'
 KEY_REFERENCE_NAME = 'reference_name'
 KEY_TYPE = 'type'
 KEY_ENV = 'env'
+KEY_VALIDITY = 'validity'
+KEY_VALIDITY_TYPE = 'validityType'
 
 KEY_WHOLESALE_PRICE_TIER = 'wholesale_price_tier'
 

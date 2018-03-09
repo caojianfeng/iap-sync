@@ -22,7 +22,6 @@ def get_products(api_meta):
         product_list = access_list(json, mt['key_path'])
         for p in product_list:
             new_item = {
-                'raw_product': p,
                 defs.KEY_ENV: env,
                 defs.KEY_PRODUCT_RAW_ID: k_m[defs.KEY_PRODUCT_RAW_ID](p),
                 defs.KEY_REFERENCE_NAME: k_m[defs.KEY_REFERENCE_NAME](p),
@@ -33,6 +32,8 @@ def get_products(api_meta):
                 defs.CONST_PRICE: k_m[defs.CONST_PRICE](p),
                 defs.KEY_CLEARED_FOR_SALE:
                     k_m[defs.KEY_CLEARED_FOR_SALE](p) if k_m[defs.KEY_CLEARED_FOR_SALE] else True,
+                defs.KEY_VALIDITY: k_m[defs.KEY_VALIDITY](p),
+                defs.KEY_VALIDITY_TYPE: k_m[defs.KEY_VALIDITY_TYPE](p),
             }
             locates = mt['locales']
             new_item['locales'] = locates

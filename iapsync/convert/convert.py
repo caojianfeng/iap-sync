@@ -4,7 +4,7 @@ from ..appstore.appstore_pricing import calc_price_tier
 
 
 def convert_price(product, options):
-    tier = calc_price_tier(product.unwrapped()[defs.CONST_PRICE], options.get('ceil_price', False))
+    tier = calc_price_tier(product.wrapped()[defs.CONST_PRICE], options.get('ceil_price', False))
     product.set_price_tier(tier)
     return product
 
@@ -43,12 +43,8 @@ def fix_review(product, options):
 
 
 def add_validity(product, options):
-    raw_product = product.raw_product()
-    if not raw_product:
-        return product
-
-    validity_type = raw_product.get('validityType', None)
-    validity = raw_product.get('validity', None)
+    validity_type = product.validityType()
+    validity = product.validity()
     if validity is None or validity_type is None:
         return product
 
@@ -73,8 +69,8 @@ def add_validity(product, options):
 
 def product_id(p, options):
     env = p.env()
-    raw_id = p.raw_product()[defs.KEY_PRODUCT_RAW_ID]
-    p.unwrapped()[defs.KEY_PRODUCT_ID] = '%s.%s' % (env, str(raw_id))
+    raw_id = p.raw_id()
+    p.wrapped()[defs.KEY_PRODUCT_ID] = '%s.%s' % (env, str(raw_id))
     return p
 
 

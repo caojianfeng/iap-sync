@@ -263,9 +263,11 @@ class Product:
     def locales(self):
         return self.p_dict.get('locales')
 
+    def raw_id(self):
+        return self.p_dict[defs.KEY_PRODUCT_RAW_ID]
+
     def id(self):
         return self.p_dict[defs.KEY_PRODUCT_ID]
-
 
     def env(self):
         return self.p_dict[defs.KEY_ENV]
@@ -324,10 +326,13 @@ class Product:
     def set_cleared_for_sale(self, value):
         self.p_dict[defs.KEY_CLEARED_FOR_SALE] = value
 
-    def raw_product(self):
-        return self.p_dict.get('raw_product')
+    def validity(self):
+        return self.p_dict[defs.KEY_VALIDITY]
 
-    def unwrapped(self):
+    def validityType(self):
+        return self.p_dict[defs.KEY_VALIDITY_TYPE]
+
+    def wrapped(self):
         return self.p_dict
 
     def __str__(self):

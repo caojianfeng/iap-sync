@@ -310,7 +310,7 @@ def sync(params, opts):
     options.update(limits)
     options.update(params)
     converted_products = list(map(
-        lambda pr: convert_product(Product(pr), options).unwrapped(),
+        lambda pr: convert_product(Product(pr), options).wrapped(),
         raw_products))
 
     # 过滤
