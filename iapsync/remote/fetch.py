@@ -13,6 +13,8 @@ def get_products(api_meta):
     metas = api_meta if isinstance(api_meta, list) else [api_meta]
     ret = []
     for mt in metas:
+        by_env = {'meta': mt, 'products': []}
+        ret.append(by_env)
         k_m = mt['key_map']
         api = mt['api']
         env = mt['env']
@@ -43,6 +45,7 @@ def get_products(api_meta):
                     defs.KEY_DESCRIPTION: k_m[lc][defs.KEY_DESCRIPTION](p),
                 }
                 new_item[lc] = desc
-            ret.append(new_item)
+            by_env['products'].append(new_item)
+
     return ret
 

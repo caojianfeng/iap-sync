@@ -9,14 +9,41 @@ from lxml import etree
 import hashlib
 import urllib
 import importlib.util
-
+import operator, functools
+import json
 from pathlib import Path, PurePath
 from ..defs import defs
 from ..config import config
 from ..remote.fetch import get_products
 from ..convert.convert import convert_product, fix_appstore_product
 from ..model.product import AppStoreProduct, XML_NAMESPACE, Product
+from ..model.price import extract_price
 from ..validate import validate
+from ..handlers import all_handlers
+
+
+def convert_product_data(data, options):
+    def conv(d):
+        ret = {}
+        ret.update(d)
+        ret['products'] = list(map(
+            lambda p: convert_product(Product(p), options).wrapped(),
+            ret['products']
+        ))
+        return ret
+    return list(map(conv, data))
+
+
+def filter_product_data(data, options):
+    def filt(d):
+        ret = {}
+        ret.update(d)
+        products = list(filter(
+            lambda pp: pp[defs.KEY_PRODUCT_ID] not in options['excludes'] and validate.validate(pp),
+            d['products']))
+        ret['products'] = products
+        return ret
+    return list(map(filt, data))
 
 
 def get_transporter():
@@ -290,33 +317,30 @@ def sync(params, opts):
     else:
         in_app_purchases = in_app_purchases_q[0]
 
-    # 下载后台商品数据
-    new_package_path = tmp_dir.joinpath(APPSTORE_PACKAGE_NAME)
-    raw_products = get_products(api_meta)
-
-    if raw_products is None:
-        print('some how failed to get products')
-        sys.exit(-1)
-
-    if len(raw_products) <= 0:
-        print('nothing to do, no products fetched')
-        sys.exit(0)
-
     # 转换，计算价格阶梯，必须先于filter，后者排出阶梯=-1的商品
+    new_package_path = tmp_dir.joinpath(APPSTORE_PACKAGE_NAME)
     options = {
         'default_screenshot': DEFAULT_SCREENSHOT_PATH,
         'screenshot_dir': new_package_path.as_posix(),
     }
     options.update(limits)
     options.update(params)
-    converted_products = list(map(
-        lambda pr: convert_product(Product(pr), options).wrapped(),
-        raw_products))
+    options['excludes'] = excludes
 
-    # 过滤
-    new_products = list(filter(lambda pp: pp[defs.KEY_PRODUCT_ID] not in excludes and validate.validate(pp), converted_products))
+    # 下载后台商品数据
+    data = convert_product_data(get_products(api_meta), options)
+    data = filter_product_data(data, options)
+    new_products = list(functools.reduce(
+        lambda res, it: operator.concat(res, it['products']),
+        data,
+        []))
+
+    if new_products is None:
+        print('some how failed to get products')
+        sys.exit(-1)
+
     if len(new_products) <= 0:
-        print('nothing to do, all filtered out')
+        print('nothing to do, no products fetched')
         sys.exit(0)
 
     # copy screenshots，顺序相关，必须在update_product之前运行，不然无法计算size, md5
@@ -354,6 +378,8 @@ def sync(params, opts):
     # save things
     new_metafile_path = new_package_path.joinpath(config.APPSTORE_METAFILE)
     doc_tree.write(new_metafile_path.as_posix(), pretty_print=True, xml_declaration = True, encoding='utf-8')
+    with open(config.TMP_PRODUCTS_PERSIST_FILE, 'w') as fp:
+        json.dump(extract_price(data), fp)
 
 
 def verify(params, opts):
@@ -378,15 +404,20 @@ def upload(params, opts):
     APPSTORE_PACKAGE_NAME = params['APPSTORE_PACKAGE_NAME']
     tmp_dir = Path(config.TMP_DIR)
     p = tmp_dir.joinpath(APPSTORE_PACKAGE_NAME)
-    # 初始化etree
-    try:
-        subprocess.run([
-            transporter_path,
-            '-m', 'upload', '-u', username, '-p', password, '-f', p.as_posix()])
-    except:
-        print('上传失败：%s.' % sys.exc_info()[0])
-        raise
 
+    if not params.get('skip_appstore', False):
+        # 初始化etree
+        try:
+            subprocess.run([
+                transporter_path,
+                '-m', 'upload', '-u', username, '-p', password, '-f', p.as_posix()])
+        except:
+            print('上传失败：%s.' % sys.exc_info()[0])
+            raise
+
+    with open(config.TMP_PRODUCTS_PERSIST_FILE, 'r') as fp:
+        data = json.load(fp)
+        all_handlers.handle(data)
 
 dispatch_tbl = {
     'sync': sync,

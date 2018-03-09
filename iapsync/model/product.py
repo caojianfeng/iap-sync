@@ -278,6 +278,9 @@ class Product:
     def set_price_tier(self, value):
         self.p_dict[defs.KEY_WHOLESALE_PRICE_TIER] = value
 
+    def appstore_price(self):
+        self.p_dict[defs.KEY_APPSTORE_PRICE]
+
     def type(self):
         return self.p_dict[defs.KEY_TYPE]
 

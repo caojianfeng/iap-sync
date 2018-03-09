@@ -4,8 +4,13 @@ from ..appstore.appstore_pricing import calc_price_tier
 
 
 def convert_price(product, options):
-    tier = calc_price_tier(product.wrapped()[defs.CONST_PRICE], options.get('ceil_price', False))
-    product.set_price_tier(tier)
+    tier = calc_price_tier(
+        product.wrapped()[defs.CONST_PRICE],
+        options.get('ceil_price', False),
+        options.get('accept_zero_price', True)
+    )
+    product.set_price_tier(tier[0])
+    product.wrapped()[defs.KEY_APPSTORE_PRICE] = tier[1]
     return product
 
 

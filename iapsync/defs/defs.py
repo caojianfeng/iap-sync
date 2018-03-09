@@ -10,6 +10,7 @@ KEY_TYPE = 'type'
 KEY_ENV = 'env'
 KEY_VALIDITY = 'validity'
 KEY_VALIDITY_TYPE = 'validityType'
+KEY_APPSTORE_PRICE = 'APPSTORE_PRICE'
 
 KEY_WHOLESALE_PRICE_TIER = 'wholesale_price_tier'
 
