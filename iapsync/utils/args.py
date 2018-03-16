@@ -58,6 +58,6 @@ def extract_params(parser):
         'price_only': True if not fix_screenshots and not force_update and parser.price_only else False,
         'fix_screenshots': fix_screenshots,
         'force_update': force_update,
-        'ceil_price': True if parser.ceil_price else False,
+        'ceil_price': True if parser.ceil_price else True,
     }
 

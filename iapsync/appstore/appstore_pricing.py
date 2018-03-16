@@ -83,7 +83,7 @@ def calc_price_tier_ceil(price, accept_zero_price=True):
     return -1, -1
 
 
-def calc_price_tier(price, ceil_price=False, accept_zero_price=True):
+def calc_price_tier(price, ceil_price, accept_zero_price=True):
     if ceil_price:
         return calc_price_tier_ceil(price, accept_zero_price)
     else:
