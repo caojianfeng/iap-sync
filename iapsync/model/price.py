@@ -13,7 +13,7 @@ def extract_price(data):
         by_env['callback_params'] = meta.get('callback_params', None)
         by_env['products'] = list(map(
             lambda p: {
-                'product_id': p[defs.KEY_PRODUCT_RAW_ID],
+                'product_id': p[defs.KEY_PRODUCT_ID],
                 'product_price': int(100 * p[defs.KEY_APPSTORE_PRICE])
             },
             it['products']
