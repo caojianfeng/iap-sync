@@ -60,7 +60,7 @@ def get_price_tier_table(path):
     return ret
 
 
-def calc_price_tier_floor(price, accept_zero_price=True):
+def calc_price_tier_floor(price, accept_zero_price):
     if price < 0:
         raise TypeError('price: %s is negative, not allowed' % str(price))
     tier_table = get_price_tier_table(None)
@@ -69,12 +69,12 @@ def calc_price_tier_floor(price, accept_zero_price=True):
         t, p = tup
         if p > price:
             # last_t is surely not None, because price is non-negative, tier_table starts from 0
-            return last_t if last_t[0] > 0 or accept_zero_price else tup
+            return last_t if last_t[0] > 0 or accept_zero_price else (-1, -1)
         last_t = tup
     return -1, -1
 
 
-def calc_price_tier_ceil(price, accept_zero_price=True):
+def calc_price_tier_ceil(price, accept_zero_price):
     tier_table = get_price_tier_table(None)
     for ii, tup in enumerate(tier_table):
         t, p = tup
@@ -83,7 +83,7 @@ def calc_price_tier_ceil(price, accept_zero_price=True):
     return -1, -1
 
 
-def calc_price_tier(price, ceil_price, accept_zero_price=True):
+def calc_price_tier(price, ceil_price, accept_zero_price):
     if ceil_price:
         return calc_price_tier_ceil(price, accept_zero_price)
     else:
