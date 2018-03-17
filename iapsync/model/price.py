@@ -9,6 +9,9 @@ def extract_price(data):
         by_env = {}
         ret.append(by_env)
         meta = it['meta']
+        by_env['meta'] = {}
+        by_env['meta'].update(meta)
+        by_env['meta']['key_map'] = None
         by_env['callback'] = meta.get('callback', None)
         by_env['callback_params'] = meta.get('callback_params', None)
         by_env['products'] = list(map(
@@ -18,4 +21,5 @@ def extract_price(data):
             },
             it['products']
         ))
+        by_env['result'] = it.get('result', None)
     return ret

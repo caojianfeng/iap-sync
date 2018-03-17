@@ -21,6 +21,7 @@ def main():
     parser.add_argument('--fix-screenshots', default=False, type=bool)
     parser.add_argument('--force-update', default=False, type=bool)
     parser.add_argument('--ceil-price', default=False, type=bool)
+    parser.add_argument('--dry-run', default=False, type=bool)
     parser = parser.parse_args()
     params = extract_params(parser)
     actions[parser.mode](params, {'namespaces': {'x': XML_NAMESPACE}})

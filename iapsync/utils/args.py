@@ -45,6 +45,10 @@ def extract_params(parser):
     APPSTORE_PACKAGE_NAME = '%s.itmsp' % APP_SKU
 
     return {
+        'smtp_conf': config_md.smtp_conf if hasattr(config_md, 'smtp_conf') else {},
+        'email_sender': config_md.email_sender if hasattr(config_md, 'email_sender') else None,
+        'subscribers': config_md.subscribers if hasattr(config_md, 'subscribers') else [],
+        'dry_run': parser.dry_run,
         'api_meta': api_meta,
         'itc_conf': itc_conf,
         'defaults': defaults,

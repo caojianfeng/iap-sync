@@ -14,7 +14,25 @@ def run(params, opts):
     tmp_dir = Path(config.TMP_DIR)
     p = tmp_dir.joinpath(APPSTORE_PACKAGE_NAME)
 
-    if not params.get('skip_appstore', False):
+    def check_update(data):
+        if not data or len(data) <= 0:
+            return False
+        for data_item in data:
+            result = data_item.get('result', None)
+            if not result:
+                continue
+            if len(result.get('updated', [])) > 0 or len(result.get('added', [])) > 0:
+                return True
+        return False
+
+    has_update = False
+    with open(config.TMP_PRODUCTS_PERSIST_FILE, 'r') as fp:
+        data = json.load(fp)
+        has_update = check_update(data)
+        if has_update:
+            all_handlers.handle(data, params)
+
+    if has_update and not params.get('skip_appstore', False) and not params['dry_run']:
         # 初始化etree
         try:
             subprocess.run([
@@ -24,7 +42,4 @@ def run(params, opts):
             print('上传失败：%s.' % sys.exc_info()[0])
             raise
 
-    with open(config.TMP_PRODUCTS_PERSIST_FILE, 'r') as fp:
-        data = json.load(fp)
-        all_handlers.handle(data)
 

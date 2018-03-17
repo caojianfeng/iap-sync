@@ -152,7 +152,7 @@ def update_product(elem, p, options):
 
     pm = AppStoreProduct(elem)
     if not is_product_changed(elem, p, price_only):
-        return
+        return False
 
     print('update: id: %s, name: %s' % (p[defs.KEY_PRODUCT_ID], p[p['locales'][0]][defs.KEY_TITLE]))
 
@@ -166,6 +166,7 @@ def update_product(elem, p, options):
         pm.set_title(p[lc][defs.KEY_TITLE], lc)
         pm.set_description(p[lc][defs.KEY_DESCRIPTION], lc)
 
+    return True
 
 def find_product(in_app_purchases, product_dict, nspc):
     res_set = in_app_purchases.xpath(
@@ -259,42 +260,48 @@ def run(params, opts):
     # 下载后台商品数据
     data = convert_product_data(get_products(api_meta), options)
     data = filter_product_data(data, options)
-    new_products = list(functools.reduce(
-        lambda res, it: operator.concat(res, it['products']),
-        data,
-        []))
-
-    if new_products is None:
-        print('some how failed to get products')
-        sys.exit(-1)
-
-    if len(new_products) <= 0:
+    if not data or len(data) <= 0:
         print('nothing to do, no products fetched')
         sys.exit(0)
 
     # copy screenshots，顺序相关，必须在update_product之前运行，不然无法计算size, md5
     new_package_path.mkdir()
-    for pp in new_products:
-        screenshot_path = new_package_path.joinpath('%s.%s' % (pp[defs.KEY_PRODUCT_ID], 'png')).as_posix()
-        screenshot_url = pp[defs.KEY_REVIEW_SCREENSHOT]
-        if screenshot_url:
-            try:
-                urllib.request.urlretrieve(screenshot_url, screenshot_path)
-            except:
+    for data_item in data:
+        products = data_item.get('products', [])
+        if len(products) <= 0:
+            continue
+
+        for pp in products:
+            screenshot_path = new_package_path.joinpath('%s.%s' % (pp[defs.KEY_PRODUCT_ID], 'png')).as_posix()
+            screenshot_url = pp[defs.KEY_REVIEW_SCREENSHOT]
+            if screenshot_url:
+                try:
+                    urllib.request.urlretrieve(screenshot_url, screenshot_path)
+                except:
+                    shutil.copy(DEFAULT_SCREENSHOT_PATH, screenshot_path)
+            else:
+                pp[defs.KEY_REVIEW_SCREENSHOT] = screenshot_path
                 shutil.copy(DEFAULT_SCREENSHOT_PATH, screenshot_path)
-        else:
-            pp[defs.KEY_REVIEW_SCREENSHOT] = screenshot_path
-            shutil.copy(DEFAULT_SCREENSHOT_PATH, screenshot_path)
 
     # merge in_app_purchases
-    for p in new_products:
-        e = find_product(in_app_purchases, p, namespaces)
-        if e is None:
-            if p[defs.KEY_PRODUCT_ID] not in excludes:
-                print('new: id: %s, name: %s' % (p[defs.KEY_PRODUCT_ID], p[p['locales'][0]][defs.KEY_TITLE]))
-                append_product(in_app_purchases, p)
-        else:
-            update_product(e, p, params)
+    for data_item in data:
+        products = data_item.get('products', [])
+        if len(products) <= 0:
+            continue
+        updated = []
+        added = []
+        for p in products:
+            e = find_product(in_app_purchases, p, namespaces)
+            if e is None:
+                if p[defs.KEY_PRODUCT_ID] not in excludes:
+                    print('new: id: %s, name: %s' % (p[defs.KEY_PRODUCT_ID], p[p['locales'][0]][defs.KEY_TITLE]))
+                    append_product(in_app_purchases, p)
+                    added.append(p)
+            else:
+                did_update = update_product(e, p, params)
+                if did_update:
+                    updated.append(p)
+        data_item['result'] = {'updated': updated, 'added': added}
 
     # appstore screenshot may used to be edited manually, which cannot pass verify
     # : screenshot name and stats not persistent, fix by writing them

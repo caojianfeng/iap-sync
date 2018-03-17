@@ -20,3 +20,4 @@ DEFAULT_SCREENSHOT_PATH = '%s/product-screenshot.png' % _this_dir_
 TMP_DIR = 'TMP'
 TMP_PRODUCTS_PERSIST_FILE = '%s/products.json' % TMP_DIR
 
+EMAIL_SENDER = 'wansong.innobuddy.com'
