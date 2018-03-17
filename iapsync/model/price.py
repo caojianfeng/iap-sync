@@ -1,4 +1,5 @@
 from ..defs import defs
+import operator
 
 def extract_price(data):
     ret = []
@@ -9,17 +10,22 @@ def extract_price(data):
         by_env = {}
         ret.append(by_env)
         meta = it['meta']
+        result = it.get('result', {})
         by_env['meta'] = {}
         by_env['meta'].update(meta)
         by_env['meta']['key_map'] = None
         by_env['callback'] = meta.get('callback', None)
         by_env['callback_params'] = meta.get('callback_params', None)
+        products = operator.concat(
+            result.get('updated', []),
+            result.get('added', [])
+        )
         by_env['products'] = list(map(
             lambda p: {
                 'product_id': p[defs.KEY_PRODUCT_ID],
                 'product_price': int(100 * p[defs.KEY_APPSTORE_PRICE])
             },
-            it['products']
+            products
         ))
-        by_env['result'] = it.get('result', None)
+        by_env['result'] = result
     return ret

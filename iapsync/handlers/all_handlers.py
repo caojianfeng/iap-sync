@@ -9,15 +9,11 @@ from ..config import config
 
 def upload(data, params):
     for it in data:
-        result = it.get('result', None)
-        if not result:
-            continue
-        updated = result.get('updated', [])
-        added = result.get('added', [])
-        products = operator.concat(updated, added)
+        products = it.get('products', [])
+        result = it.get('result', {})
+        it['result'] = result
         if len(products) <= 0:
             continue
-
         payload = {'products': json.dumps(products)}
         callback = it.get('callback', None)
         params = it.get('callback_params', {})
@@ -53,8 +49,6 @@ def notify(data, params):
         user = smtp_conf['user']
         password = smtp_conf['password']
 
-        print('will send: %s, to: %s' % (content, receivers))
-
         s = smtplib.SMTP_SSL()
         try:
             s.connect(host, port)
@@ -77,7 +71,6 @@ def notify(data, params):
         except:
             print('did send to smtp host: %s, port: %d, user: %s, password: %s, msg: %s, but failed to quit',
                   (host, port, user, password, msg.as_string()))
-        print('did send: %s, to: %s' % (content, receivers))
 
     message = ''
     subject = 'App Store商品更新'
@@ -101,6 +94,7 @@ def notify(data, params):
 
     emails = params.get('subscribers', [])
     if len(emails) and message != '':
+        message = '%s\n\n\n商品数据已上传到App Store，还需要到https://itunesconnect.apple.com手工提交审核内购商品。（注：不可以提交id以dev.或sim.开头的测试商品，否则审核无法通过。）\n' % message
         message = '%s\n\ntimestamp: %s\n\n\n' % (message, datetime.today().isoformat())
         send_email(emails, subject, message)
 
