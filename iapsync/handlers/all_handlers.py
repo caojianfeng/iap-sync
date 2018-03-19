@@ -52,25 +52,25 @@ def notify(data, params):
         s = smtplib.SMTP_SSL()
         try:
             s.connect(host, port)
-        except:
-            print('failed to connecto to smtp host: %s, port: %d', (host, port))
+        except Exception as e:
+            print('failed to connecto to smtp host: %s, port: %d, error: %s' % (host, port, e))
         try:
             s.login(user, password)
-        except:
+        except Exception as e:
             print(
-                'failed to login to smtp host: %s, port: %d, user: %s, password: %s',
-                (host, port, user, password))
+                'failed to login to smtp host: %s, port: %d, user: %s, password: %s, error: %s' %
+                (host, port, user, password, e))
         try:
             s.sendmail(sender, receivers, msg.as_string())
-        except:
-            print('failed to send to smtp host: %s, port: %d, user: %s, password: %s, msg: %s',
-                  (host, port, user, password, msg.as_string()))
+        except Exception as e:
+            print('failed to send to smtp host: %s, port: %d, user: %s, password: %s, msg: %s, error: %s' %
+                  (host, port, user, password, msg.as_string(), e))
 
         try:
             s.quit()
-        except:
-            print('did send to smtp host: %s, port: %d, user: %s, password: %s, msg: %s, but failed to quit',
-                  (host, port, user, password, msg.as_string()))
+        except Exception as e:
+            print('did send to smtp host: %s, port: %d, user: %s, password: %s, msg: %s, but failed to quit, error: %s' %
+                  (host, port, user, password, msg.as_string(), e))
 
     message = ''
     subject = 'App Store商品更新'

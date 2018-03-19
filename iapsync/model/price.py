@@ -16,10 +16,7 @@ def extract_price(data):
         by_env['meta']['key_map'] = None
         by_env['callback'] = meta.get('callback', None)
         by_env['callback_params'] = meta.get('callback_params', None)
-        products = operator.concat(
-            result.get('updated', []),
-            result.get('added', [])
-        )
+        products = it.get('products', [])
         by_env['products'] = list(map(
             lambda p: {
                 'product_id': p[defs.KEY_PRODUCT_ID],
