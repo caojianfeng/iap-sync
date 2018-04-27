@@ -190,12 +190,27 @@ class AppStoreProduct:
         return node[0].text if node and len(node) else ''
 
     def set_title(self, value, locale):
+        locs = self.elem.xpath(
+            'x:locales',
+            namespaces = self.namespaces
+        )
+        if not locs or len(locs) <= 0:
+            etree.SubElement(self.elem, '{%s}locales' % XML_NAMESPACE)
+            self.set_title(value, locale)
+            return
+
         nodes = self.elem.xpath(
             'x:locales/x:locale[@name = $loc]/x:title',
             namespaces = self.namespaces,
             loc = locale
         )
         if not nodes or len(nodes) <= 0:
+            new_loc = etree.Element('{%s}locale' % XML_NAMESPACE)
+            locs[0].append(new_loc)
+            new_loc.set('name', locale)
+            etree.SubElement(new_loc, '{%s}title' % XML_NAMESPACE)
+            etree.SubElement(new_loc, '{%s}description' % XML_NAMESPACE)
+            self.set_title(value, locale)
             return
 
         node = nodes[0]
@@ -210,13 +225,30 @@ class AppStoreProduct:
         return node[0].text if node and len(node) else ''
 
     def set_description(self, value, locale):
+        locs = self.elem.xpath(
+            'x:locales',
+            namespaces = self.namespaces
+        )
+
+        if not locs or len(locs) <= 0:
+            etree.SubElement(self.elem, '{%s}locales' % XML_NAMESPACE)
+            self.set_description(value, locale)
+            return
+
         nodes = self.elem.xpath(
             'x:locales/x:locale[@name = $loc]/x:description',
             namespaces = self.namespaces,
             loc = locale
         )
         if not nodes or len(nodes) <= 0:
+            new_loc = etree.Sulement('{%s}locale' % XML_NAMESPACE)
+            locs[0].append(new_loc)
+            new_loc.set('name', locale)
+            etree.SubElement(new_loc, '{%s}title' % XML_NAMESPACE)
+            etree.SubElement(new_loc, '{%s}description' % XML_NAMESPACE)
+            self.set_description(value, locale)
             return
+
         node = nodes[0]
         node.text = str(value)
 
