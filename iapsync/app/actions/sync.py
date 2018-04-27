@@ -247,7 +247,6 @@ def run(params, opts):
     else:
         in_app_purchases = in_app_purchases_q[0]
 
-    # 转换，计算价格阶梯，必须先于filter，后者排出阶梯=-1的商品
     new_package_path = tmp_dir.joinpath(APPSTORE_PACKAGE_NAME)
     options = {
         'default_screenshot': DEFAULT_SCREENSHOT_PATH,
@@ -258,6 +257,7 @@ def run(params, opts):
     options['excludes'] = excludes
 
     # 下载后台商品数据
+    # 转换，计算价格阶梯，必须先于filter，后者排出阶梯=-1的商品
     data = convert_product_data(get_products(api_meta), options)
     data = filter_product_data(data, options)
     if not data or len(data) <= 0:
