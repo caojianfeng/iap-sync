@@ -53,35 +53,40 @@ def is_product_changed(product_elem, product_dict, price_only=False):
     if cleared_for_sale_now and not cleared_for_sale_next:
         return True
 
-    type_now = pm.type()
-    type_next = product_dict[defs.KEY_TYPE]
-    if type_now != type_next:
+    type_now = pm.type() if pm.type() else ''
+    type_next = product_dict[defs.KEY_TYPE] if product_dict[defs.KEY_TYPE] else ''
+    if type_now.strip() != type_next.strip():
+        print('type changed from: "%s" to: "%s"' % (type_now, type_next))
         return True
 
     price_tier_now = pm.price_tier()
     price_tier_next = int(product_dict[defs.KEY_WHOLESALE_PRICE_TIER])
     if price_tier_now != price_tier_next:
+        print('price_tier changed from: "%s" to: "%s"' % (price_tier_now, price_tier_next))
         return True
 
     # only care about price tier
     if price_only:
         return False
 
-    review_notes_now = pm.review_notes()
-    review_notes_next = product_dict[defs.KEY_REVIEW_NOTES]
-    if review_notes_next != review_notes_now:
+    review_notes_now = pm.review_notes() if pm.review_notes() else ''
+    review_notes_next = product_dict[defs.KEY_REVIEW_NOTES] if product_dict[defs.KEY_REVIEW_NOTES]  else ''
+    if review_notes_next.strip() != review_notes_now.strip():
+        print('review note changed from: "%s" to: "%s"' % (review_notes_now, review_notes_next))
         return True
 
     locales = product_dict['locales']
     for lc in locales:
-        title_now = pm.title(lc)
-        title_next = product_dict[lc][defs.KEY_TITLE]
-        if title_next != title_now:
+        title_now = pm.title(lc) if pm.title(lc) else ''
+        title_next = product_dict[lc][defs.KEY_TITLE] if product_dict[lc][defs.KEY_TITLE] else ''
+        if title_next.strip() != title_now.strip():
+            print('title changed from(%s): "%s" to: "%s"' % (lc, title_now, title_next))
             return True
 
-        desc_now = pm.description(lc)
-        desc_next = product_dict[lc][defs.KEY_DESCRIPTION]
-        if desc_next != desc_now:
+        desc_now = pm.description(lc) if pm.description(lc) else ''
+        desc_next = product_dict[lc][defs.KEY_DESCRIPTION] if product_dict[lc][defs.KEY_DESCRIPTION] else ''
+        if desc_next.strip() != desc_now.strip():
+            print('desc changed from(%s): "%s" to: "%s"' % (lc, desc_now, desc_next))
             return True
 
     return False
