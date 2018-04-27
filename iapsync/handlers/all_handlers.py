@@ -81,6 +81,7 @@ def notify(data, params):
         if len(updated) <= 0 and len(added) <= 0:
             continue
         meta = it.get('meta', {})
+        message = '%sname: %s\n' % (message, meta.get('name', ''))
         message = '%sapi: %s\n' % (message, meta['api'])
         message = '%senvironment: %s\n' % (message, meta['env'])
         message = '%supdated: %d, added: %d\n' % (message, len(updated), len(added))
