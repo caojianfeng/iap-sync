@@ -41,8 +41,11 @@ def extract_params(parser):
         else:
             limits[k] = config.ITC_CONF.get(k)
 
-    APP_SKU = itc_conf['SKU']
-    APPSTORE_PACKAGE_NAME = '%s.itmsp' % APP_SKU
+    APP_SKU = itc_conf.get('SKU', None)
+    if itc_conf.get('APPLE_ID', None) is not None:
+        APPSTORE_PACKAGE_NAME = '%s.itmsp' % itc_conf['APPLE_ID']
+    else:
+        APPSTORE_PACKAGE_NAME = '%s.itmsp' % APP_SKU
 
     return {
         'smtp_conf': config_md.smtp_conf if hasattr(config_md, 'smtp_conf') else {},

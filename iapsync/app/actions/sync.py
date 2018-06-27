@@ -194,7 +194,8 @@ def run(params, opts):
     defaults = params['defaults']
     excludes = params['excludes']
     limits = params['limits']
-    APP_SKU = params['APP_SKU']
+    APP_SKU = params.get('APP_SKU', None)
+    APPLE_ID = params['itc_conf'].get('APPLE_ID', None)
     APPSTORE_PACKAGE_NAME = params['APPSTORE_PACKAGE_NAME']
     username = params['username']
     password = params['password']
@@ -211,11 +212,23 @@ def run(params, opts):
             shutil.rmtree(app_store_dir.as_posix())
         app_store_dir.mkdir()
 
+        cmd = [transporter_path, '-m', 'lookupMetadata',
+               '-u', username,
+               '-p', password,
+               '-destination', app_store_dir.as_posix(),
+               '-subitemtype', 'InAppPurchase',
+               ]
+        if APPLE_ID is not None:
+            cmd.append('-apple_id')
+            cmd.append(APPLE_ID)
+        elif APP_SKU is not None:
+            cmd.append('-vendor_id')
+            cmd.append(APP_SKU)
+        else:
+            raise
         # 下载App Store元数据
         try:
-            subprocess.run([
-                transporter_path, '-m', 'lookupMetadata', '-u', username, '-p', password,
-                '-destination', app_store_dir.as_posix(), '-vendor_id', APP_SKU, '-subitemtype', 'InAppPurchase'])
+            subprocess.run(cmd)
         except:
             print('获取App Store数据失败：%s.' % sys.exc_info()[0])
             raise
