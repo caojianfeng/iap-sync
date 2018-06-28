@@ -25,10 +25,10 @@ def run(params, opts):
                 return True
         return False
 
-    has_update = False
+    has_update = params.get('force_update', False)
     with open(config.TMP_PRODUCTS_PERSIST_FILE, 'r') as fp:
         data = json.load(fp)
-        has_update = check_update(data)
+        has_update = has_update or check_update(data)
         if has_update:
             all_handlers.handle(data, params)
 
