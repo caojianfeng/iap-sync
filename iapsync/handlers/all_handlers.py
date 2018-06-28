@@ -8,13 +8,15 @@ from ..config import config
 
 
 def upload(data, params):
+    itc_conf = params['itc_conf']
+    bundle_id=itc_conf['BUNDLE_ID']
     for it in data:
         products = it.get('products', [])
         result = it.get('result', {})
         it['result'] = result
         if len(products) <= 0:
             continue
-        payload = {'products': json.dumps(products)}
+        payload = {'products': json.dumps(products), 'bundleId': bundle_id}
         callback = it.get('callback', None)
         params = it.get('callback_params', {})
         if not callback:
