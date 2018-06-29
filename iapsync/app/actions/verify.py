@@ -6,6 +6,8 @@ from iapsync.utils.transporter import transporter_path
 
 
 def run(params, opts, agg_ret):
+    if params.get('skip_appstore', False):
+        return
     APPSTORE_PACKAGE_NAME = params['APPSTORE_PACKAGE_NAME']
     username = params['username']
     password = params['password']

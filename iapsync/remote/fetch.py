@@ -48,6 +48,5 @@ def get_products(api_meta):
                 }
                 new_item[lc] = desc
             by_env['products'].append(new_item)
-
     return ret
 
