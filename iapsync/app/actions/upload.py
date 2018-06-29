@@ -30,7 +30,12 @@ def run(params, opts, agg_ret):
         data = json.load(fp)
         has_update = has_update or check_update(data)
         if has_update:
+            if params['dry_run']:
+                print('if not dry_run will send data: %s\n, params: %s\n' % (data, params))
             all_handlers.handle(data, params)
+
+    if has_update and params['dry_run']:
+        print('dry_run, so will not upload to appstore')
 
     if has_update and not params.get('skip_appstore', False) and not params['dry_run']:
         # 初始化etree
