@@ -3,7 +3,7 @@ from ..actions import upload
 from ..actions import verify
 
 actions = {
-    'sync': sync.run,
-    'upload': upload.run,
-    'verify': verify.run,
+    'sync': [sync.run],
+    'verify': [sync.run, verify.run],
+    'upload': [sync.run, verify.run, upload.run],
 }

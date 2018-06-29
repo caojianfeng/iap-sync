@@ -10,8 +10,8 @@ def main():
     parser = argparse.ArgumentParser(
         description='''
         -m | --mode sync: fetch from api defined by --config-file, generate itmsp package, for uploading to itunesconnect
-        -m | --mode verify: verify generated itmsp package by sync mode
-        -m | --mode upload: upload generated itmsp package to itunes connect by sync mode
+        -m | --mode verify: first do the work of sync mode, then verify generated itmsp package by sync mode
+        -m | --mode upload: first do the work of verify, then upload generated itmsp package to itunes connect by sync mode
         '''
     )
     parser.add_argument('-c', '--config-file')
@@ -24,5 +24,8 @@ def main():
     parser.add_argument('--dry-run', default=False, type=bool)
     parser = parser.parse_args()
     params = extract_params(parser)
-    actions[parser.mode](params, {'namespaces': {'x': XML_NAMESPACE}})
+    steps = actions[parser.mode]
+    agg_ret = None
+    for step in steps:
+        agg_ret = step(params, {'namespaces': {'x': XML_NAMESPACE}}, agg_ret)
 

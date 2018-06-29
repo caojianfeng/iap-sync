@@ -187,7 +187,7 @@ def append_product(in_app_purchases, product_dict):
     in_app_purchases.append(node)
 
 
-def run(params, opts):
+def run(params, opts, agg_ret):
     namespaces = opts['namespaces']
 
     api_meta = params['api_meta']

@@ -5,7 +5,7 @@ from iapsync.config import config
 from iapsync.utils.transporter import transporter_path
 
 
-def run(params, opts):
+def run(params, opts, agg_ret):
     APPSTORE_PACKAGE_NAME = params['APPSTORE_PACKAGE_NAME']
     username = params['username']
     password = params['password']
