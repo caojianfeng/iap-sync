@@ -7,7 +7,7 @@ from iapsync.utils.transporter import transporter_path
 
 def run(params, opts, agg_ret):
     if params.get('skip_appstore', False):
-        return
+        return agg_ret
     APPSTORE_PACKAGE_NAME = params['APPSTORE_PACKAGE_NAME']
     username = params['username']
     password = params['password']
@@ -21,5 +21,4 @@ def run(params, opts, agg_ret):
     except:
         print('验证失败：%s.' % sys.exc_info()[0])
         raise
-
-
+    return agg_ret

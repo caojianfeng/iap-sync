@@ -1,13 +1,12 @@
 import sys
 import subprocess
-import json
 from pathlib import Path, PurePath
 from iapsync.config import config
 from iapsync.handlers import all_handlers
 from iapsync.utils.transporter import transporter_path
 
 
-def run(params, opts, agg_ret):
+def run(params, opts, data_to_upload):
     username = params['username']
     password = params['password']
     APPSTORE_PACKAGE_NAME = params['APPSTORE_PACKAGE_NAME']
@@ -26,13 +25,11 @@ def run(params, opts, agg_ret):
         return False
 
     has_update = params.get('force_update', False)
-    with open(config.TMP_PRODUCTS_PERSIST_FILE, 'r') as fp:
-        data = json.load(fp)
-        has_update = has_update or check_update(data)
-        if has_update:
-            if params['dry_run']:
-                print('if not dry_run will send data: %s\n\n, params: %s\n\n' % (data, params))
-            all_handlers.handle(data, params)
+    has_update = has_update or check_update(data_to_upload)
+    if has_update:
+        if params['dry_run']:
+            print('if not dry_run will send data: %s\n\n, params: %s\n\n' % (data_to_upload, params))
+        all_handlers.handle(data_to_upload, params)
 
     if has_update and params['dry_run']:
         print('dry_run, so will skip uploading to appstore')

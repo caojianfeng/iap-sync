@@ -6,7 +6,6 @@ import hashlib
 import urllib
 import operator
 import functools
-import json
 from pathlib import Path, PurePath
 from iapsync.defs import defs
 from iapsync.config import config
@@ -332,7 +331,6 @@ def run(params, opts, agg_ret):
     # save things
     new_metafile_path = new_package_path.joinpath(config.APPSTORE_METAFILE)
     doc_tree.write(new_metafile_path.as_posix(), pretty_print=True, xml_declaration = True, encoding='utf-8')
-    with open(config.TMP_PRODUCTS_PERSIST_FILE, 'w') as fp:
-        json.dump(extract_price(data), fp)
+    return extract_price(data)
 
 
