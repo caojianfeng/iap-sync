@@ -27,14 +27,8 @@ def extract_params(parser):
     fix_screenshots = True if parser.fix_screenshots else False
     force_update = True if parser.force_update else False
 
-    limits = {
-        'NAME_MAX': 25,
-        'DESC_MAX': 45,
-        'NAME_MIN': 2,
-        'DESC_MIN': 10,
-        'REVIEW_MAX': 200,
-        'REVIEW_MIN': 20,
-    }
+    limits = {}
+    limits.update(config.ITC_CONF)
     for k in limits.keys():
         if itc_conf.get(k) is not None:
             limits[k] = itc_conf.get(k)

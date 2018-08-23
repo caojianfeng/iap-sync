@@ -3,12 +3,14 @@ import os
 #DEFAULT_TYPE = 'non-renewing subscription'
 
 ITC_CONF = {
-    'NAME_MAX': 25,
+    'NAME_MAX': 30,
     'DESC_MAX': 45,
     'NAME_MIN': 2,
     'DESC_MIN': 10,
-    'REVIEW_MAX': 200,
+    'REVIEW_MAX': 4000,
     'REVIEW_MIN': 20,
+    'REF_NAME_MAX': 64,
+    'REF_NAME_MIN': 1
 }
 
 _this_dir_ = os.path.dirname(os.path.realpath(__file__))

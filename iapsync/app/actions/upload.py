@@ -26,10 +26,6 @@ def run(params, opts, data_to_upload):
 
     has_update = params.get('force_update', False)
     has_update = has_update or check_update(data_to_upload)
-    if has_update:
-        if params['dry_run']:
-            print('if not dry_run will send data: %s\n\n, params: %s\n\n' % (data_to_upload, params))
-        all_handlers.handle(data_to_upload, params)
 
     if has_update and params['dry_run']:
         print('dry_run, so will skip uploading to appstore')
@@ -44,4 +40,8 @@ def run(params, opts, data_to_upload):
             print('上传失败：%s.' % sys.exc_info()[0])
             raise
 
+    if has_update:
+        if params['dry_run']:
+            print('if not dry_run will send data: %s\n\n, params: %s\n\n' % (data_to_upload, params))
+        all_handlers.handle(data_to_upload, params)
 

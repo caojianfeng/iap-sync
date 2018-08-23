@@ -47,6 +47,11 @@ def fix_review(product, options):
     product.set_review_notes(fixed)
     return product
 
+def fix_reference_name(product, options):
+    t = product.reference_name()
+    fixed = pad_or_trim(t, options['REF_NAME_MAX'], options['REF_NAME_MIN'])
+    product.set_reference_name(fixed)
+    return product
 
 def add_validity(product, options):
     if product.type() != defs.CONST_SUBSCRIPTION:
@@ -84,7 +89,7 @@ def product_id(p, options):
 
 
 def convert_product(product, options):
-    converters = [product_id, convert_price, fix_description, add_validity, fix_title, fix_review]
+    converters = [product_id, convert_price, fix_description, add_validity, fix_title, fix_review, fix_reference_name]
     ret = product
     for t in converters:
         ret = t(ret, options)
