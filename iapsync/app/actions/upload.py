@@ -30,7 +30,7 @@ def run(params, opts, data_to_upload):
     if has_update and params['dry_run']:
         print('dry_run, so will skip uploading to appstore')
 
-    if has_update and not params.get('skip_appstore', False) and not params['dry_run']:
+    if has_update and not params['dry_run']:
         # 初始化etree
         try:
             subprocess.run([

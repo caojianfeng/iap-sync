@@ -234,6 +234,7 @@ def run(params, opts, agg_ret):
         print('下载App Store元数据完成.')
 
 
+
     # clear tmp dir
     tmp_dir = Path(config.TMP_DIR)
     if tmp_dir.exists():
@@ -245,6 +246,7 @@ def run(params, opts, agg_ret):
     try:
         f = open(metadata_path.as_posix(), mode='rb')
         doc_tree = etree.parse(f)
+
     except OSError:
         print('io 错误：%s' % sys.exc_info()[0])
         raise
@@ -258,6 +260,12 @@ def run(params, opts, agg_ret):
         err = 'xpath fail: package/software/software_metadata should point to a single tag, but found: %d' % len(software_metadata_q)
         raise TypeError(err)
     software_metadata = software_metadata_q[0]
+
+    # patch fix ITMS-90723
+    versions = software_metadata.xpath('x:versions', namespaces = namespaces)
+    for v in versions:
+        v.getparent().remove(v)
+
     in_app_purchases_q = software_metadata.xpath('x:in_app_purchases', namespaces = namespaces)
     if len(in_app_purchases_q) <= 0:
         in_app_purchases = etree.SubElement(software_metadata, '{%s}in_app_purchases' % XML_NAMESPACE)
