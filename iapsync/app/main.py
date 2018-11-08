@@ -22,6 +22,7 @@ def main():
     parser.add_argument('--force-update', default=False, type=bool)
     parser.add_argument('--ceil-price', default=False, type=bool)
     parser.add_argument('--dry-run', default=False, type=bool)
+    parser.add_argument('-v', '--verbose', default=False, type=bool)
     parser = parser.parse_args()
     params = extract_params(parser)
     steps = actions[parser.mode]

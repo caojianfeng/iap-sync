@@ -283,7 +283,7 @@ def run(params, opts, agg_ret):
 
     # 下载后台商品数据
     # 转换，计算价格阶梯，必须先于filter，后者排出阶梯=-1的商品
-    data = convert_product_data(get_products(api_meta), options)
+    data = convert_product_data(get_products(api_meta, options), options)
     data = filter_product_data(data, options)
     if not data or len(data) <= 0:
         print('nothing to do, no products fetched')

@@ -1,5 +1,8 @@
 import requests
+import pprint
 from ..defs import defs
+
+pp = pprint.PrettyPrinter(indent=4)
 
 def access_list(obj, key_path):
     key_paths = key_path.split('.')
@@ -9,7 +12,7 @@ def access_list(obj, key_path):
     return ret
 
 
-def get_products(api_meta):
+def get_products(api_meta, options):
     metas = api_meta if isinstance(api_meta, list) else [api_meta]
     ret = []
     for mt in metas:
@@ -23,6 +26,10 @@ def get_products(api_meta):
             continue
         product_list = access_list(json, mt['key_path'])
         for p in product_list:
+            if options.get('verbose'):
+                print('fetched product:')
+                pp.pprint(p)
+                print('\n')
             new_item = {
                 defs.KEY_ENV: env,
                 defs.KEY_PRODUCT_RAW_ID: k_m[defs.KEY_PRODUCT_RAW_ID](p),
