@@ -58,7 +58,6 @@ def extract_params(parser):
         'skip_appstore': True if parser.skip_appstore else False,
         'price_only': True if not fix_screenshots and not force_update and parser.price_only else False,
         'fix_screenshots': fix_screenshots,
-        'force_update': force_update,
-        'ceil_price': True if parser.ceil_price else True,
+        'force_update': force_update
     }
 

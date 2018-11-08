@@ -7,7 +7,6 @@ def convert_price(product, options):
     product_type = product.wrapped()[defs.KEY_TYPE]
     tier = calc_price_tier(
         product.wrapped()[defs.CONST_PRICE],
-        options['ceil_price'],
         options.get('accept_zero_price', product_type == defs.CONST_NON_CONSUMABLE)
     )
     product.set_price_tier(tier[0])
