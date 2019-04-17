@@ -199,17 +199,25 @@ class AppStoreProduct:
             self.set_title(value, locale)
             return
 
+        locale_nodes = self.elem.xpath(
+            'x:locales/x:locale[@name = $loc]',
+            namespaces = self.namespaces,
+            loc = locale
+        )
+        if not locale_nodes or len(locale_nodes) <= 0:
+            new_loc = etree.Element('{%s}locale' % XML_NAMESPACE)
+            new_loc.set('name', locale)
+            locs[0].append(new_loc)
+            self.set_title(value, locale)
+
         nodes = self.elem.xpath(
             'x:locales/x:locale[@name = $loc]/x:title',
             namespaces = self.namespaces,
             loc = locale
         )
         if not nodes or len(nodes) <= 0:
-            new_loc = etree.Element('{%s}locale' % XML_NAMESPACE)
-            locs[0].append(new_loc)
-            new_loc.set('name', locale)
-            etree.SubElement(new_loc, '{%s}title' % XML_NAMESPACE)
-            etree.SubElement(new_loc, '{%s}description' % XML_NAMESPACE)
+            the_loc = locale_nodes[0]
+            etree.SubElement(the_loc, '{%s}title' % XML_NAMESPACE)
             self.set_title(value, locale)
             return
 
@@ -235,17 +243,25 @@ class AppStoreProduct:
             self.set_description(value, locale)
             return
 
+        locale_nodes = self.elem.xpath(
+            'x:locales/x:locale[@name = $loc]',
+            namespaces = self.namespaces,
+            loc = locale
+        )
+        if not locale_nodes or len(locale_nodes) <= 0:
+            new_loc = etree.Element('{%s}locale' % XML_NAMESPACE)
+            new_loc.set('name', locale)
+            locs[0].append(new_loc)
+            self.set_description(value, locale)
+
         nodes = self.elem.xpath(
             'x:locales/x:locale[@name = $loc]/x:description',
             namespaces = self.namespaces,
             loc = locale
         )
         if not nodes or len(nodes) <= 0:
-            new_loc = etree.Sulement('{%s}locale' % XML_NAMESPACE)
-            locs[0].append(new_loc)
-            new_loc.set('name', locale)
-            etree.SubElement(new_loc, '{%s}title' % XML_NAMESPACE)
-            etree.SubElement(new_loc, '{%s}description' % XML_NAMESPACE)
+            the_loc = locale_nodes[0]
+            etree.SubElement(the_loc, '{%s}description' % XML_NAMESPACE)
             self.set_description(value, locale)
             return
 
